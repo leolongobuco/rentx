@@ -16,6 +16,10 @@
   },
   "plugins": ["@typescript-eslint", "prettier"],
   "rules": {
+    "import/no-extraneous-dependencies": [
+      "error",
+      { "devDependencies": ["**/*.spec.ts"] }
+    ],
     "no-console": "off",
     "camelcase": "off",
     "@typescript-eslint/naming-convention": [
