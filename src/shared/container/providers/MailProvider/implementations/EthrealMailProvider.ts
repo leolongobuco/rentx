@@ -1,34 +1,54 @@
-import nodemailer, { Transport } from "nodemailer";
+import fs from "fs";
+import handlebars from "handlebars";
+import nodemailer, { Transporter } from "nodemailer";
 import { IMailProvider } from "../IMailProvider";
 
 class EthrealMailProvider implements IMailProvider {
-  private client: Transport;
+  private client: Transporter;
 
   constructor() {
-    nodemailer
-      .createTestAccount()
-      .then(account => {
-        const transporter = nodemailer.createTransport({
-          host: account.smtp.host,
-          port: account.smtp.port,
-          secure: account.smtp.secure,
-          auth: {
-            user: account.user,
-            pass: account.pass,
-          },
-        });
-        this.client = transporter;
-      })
-      .catch(err => console.error(err));
+    this.createClient();
   }
 
-  async sendMail(to: string, subject: string, body: string): Promise<void> {
+  private async createClient() {
+    try {
+      const account = await nodemailer.createTestAccount();
+
+      this.client = nodemailer.createTransport({
+        host: account.smtp.host,
+        port: account.smtp.port,
+        secure: account.smtp.secure,
+        auth: {
+          user: account.user,
+          pass: account.pass,
+        },
+      });
+    } catch (err) {
+      console.error(`EtherealMailProvider - Error:\n${err}`);
+    }
+  }
+
+  async sendMail(
+    to: string,
+    subject: string,
+    variables: unknown,
+    path: string,
+  ): Promise<void> {
+    if (!this.client) {
+      await this.createClient();
+    }
+
+    const templateFileContent = fs.readFileSync(path).toString("utf-8");
+
+    const templateParse = handlebars.compile(templateFileContent);
+
+    const templateHTML = templateParse(variables);
+
     const message = await this.client.sendMail({
       to,
       from: "Rentx <noreplay@rentx.com.br",
       subject,
-      text: body,
-      html: body,
+      html: templateHTML,
     });
 
     console.log("Message sent: %s", message.messageId);
