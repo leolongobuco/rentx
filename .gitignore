@@ -5,7 +5,7 @@ rascunho.md
 rascunho.txt
 tmp/*
 !tmp/.gitkeep
-coverage
+.coverage/
 .env
 dist
-ormconfig.json
+ormconfig.json 
