@@ -1,6 +1,11 @@
 node_modules
 .vscode
 diagrama.png
-tmp
 rascunho.md 
 rascunho.txt
+tmp/*
+!tmp/.gitkeep
+coverage
+.env
+dist
+ormconfig.json
